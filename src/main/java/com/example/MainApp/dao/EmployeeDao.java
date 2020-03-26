@@ -3,9 +3,11 @@ package com.example.MainApp.dao;
 
 import com.example.MainApp.entity.Employee;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
+
 
 import java.util.List;
 
@@ -14,7 +16,7 @@ public class EmployeeDao {
 
     private JdbcTemplate jdbcTemplate;
 
-    EmployeeDao(@Autowired JdbcTemplate jdbcTemplate) {
+    public EmployeeDao(@Autowired JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
 
@@ -24,9 +26,13 @@ public class EmployeeDao {
     }
 
     public Employee findById(int id) {
-        return jdbcTemplate.queryForObject("select * from employee where id=?",
-                new Object[]{id}, new BeanPropertyRowMapper<Employee>(Employee.class));
-    }
+        try {
+
+
+            return jdbcTemplate.queryForObject("select * from employee where id=?",
+                    new Object[]{id}, new BeanPropertyRowMapper<Employee>(Employee.class));
+        }catch (EmptyResultDataAccessException ex){throw new RuntimeException("Not Found");}
+        }
 
     public int deleteById(int id) {
         return jdbcTemplate.update("delete from employee where id=?",
@@ -50,6 +56,7 @@ public class EmployeeDao {
                 employee.getFirstName(),
                 employee.getLastName(),
                 employee.getBirthDate(),
-                employee.getSalary());
+                employee.getSalary(),
+                employee.getId());
     }
 }
